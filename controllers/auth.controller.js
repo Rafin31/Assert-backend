@@ -1,8 +1,8 @@
-const { ethers } = require('ethers');
-const jwt = require('jsonwebtoken');
-const User = require('../model/user.model')
+import { ethers } from 'ethers'
+import jwt from 'jsonwebtoken';
+import User from '../model/user.model.js'
 
-exports.getNonce = async (req, res) => {
+export const getNonce = async (req, res) => {
     try {
 
         const { walletAddress } = req.body;
@@ -34,7 +34,7 @@ exports.getNonce = async (req, res) => {
 }
 
 
-exports.verify = async (req, res) => {
+export const verify = async (req, res) => {
     try {
 
         const { walletAddress, signature } = req.body;

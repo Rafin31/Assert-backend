@@ -1,15 +1,27 @@
-const app = require("./app");
-const errorHandler = require("./middlewires/errorHandler");
+import "./config/global.js";
+import { web3, contract, account } from "./web3.js";
+import app from "./app.js"
+import errorHandler from './middlewires/errorHandler.js'
 const port = process.env.PORT || 5000;
 
-
-const userRoutes = require('./routes/v1/user.route')
-const authRoutes = require('./routes/v1/auth.route')
+import userRoutes from './routes/v1/user.route.js'
+import authRoutes from './routes/v1/auth.route.js'
 
 //routes
 app.use('/api/v1/users', userRoutes)
 app.use('/api/v1/auth', authRoutes)
 
+
+async function checkBalance() {
+    try {
+        const balance = await contract.methods.balanceOf(account.address).call();
+        console.log(`Your AT Token Balance: ${web3.utils.fromWei(balance, "ether")} AT`.bold.inverse.green);
+    } catch (error) {
+        console.error("Error checking balance:".inverse.red, error);
+    }
+}
+
+checkBalance();
 
 //no route found
 app.all("*", (req, res) => {
@@ -17,8 +29,10 @@ app.all("*", (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log("Express is listening in port", port);
+    console.log(`Express is listening in port ${port}`.bold.inverse.green);
 })
+
+console.log("---------------------------------------------")
 
 //handling global errors
 app.use(errorHandler)

@@ -1,16 +1,17 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
-const connectToMongoDb = () => {
+const connectToMongoDb = async () => {
     try {
-        exports.db = mongoose.connect(process.env.MONGO_DB_CONNECTION_URI, {
+        const db = await mongoose.connect(process.env.MONGO_DB_CONNECTION_URI, {
             useNewUrlParser: true,
-            useUnifiedTopology: true
-        }).then(() => {
-            console.log("Off-Chain Database connected successfully")
-        })
+            useUnifiedTopology: true,
+        });
+        console.log("Off-Chain Database connected successfully".bold.green.inverse);
+        return db;
     } catch (error) {
-        next(`Off-Chain Database Connection Error -> ${error}`)
+        console.error(`Off-Chain Database Connection Error -> ${error}`.bold.red.inverse);
+        process.exit(1);
     }
-}
+};
 
-module.exports = connectToMongoDb;
+export default connectToMongoDb;

@@ -1,17 +1,17 @@
-const express = require('express');
+import express from 'express'
 const router = express.Router()
 
-const authController = require('../../controllers/auth.controller');
+import {
+    getNonce,
+    verify
+} from '../../controllers/auth.controller.js';
 
 router
     .route("/nonce")
-    .post(authController.getNonce)
-
-
+    .post(getNonce)
 
 router
     .route("/verify")
-    .post(authController.verify)
+    .post(verify)
 
-
-module.exports = router  
+export default router  

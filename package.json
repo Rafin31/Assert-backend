@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
@@ -12,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "colors": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "ethers": "^6.13.5",
@@ -20,6 +22,7 @@
     "mongodb": "^4.11.0",
     "mongoose": "^6.7.0",
     "nodemon": "^2.0.20",
-    "tree-cli": "^0.6.7"
+    "tree-cli": "^0.6.7",
+    "web3": "^4.16.0"
   }
 }
