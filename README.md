@@ -7,8 +7,8 @@ This is the backend for the **ASSERT Prediction Platform**, a blockchain-based s
 - **User Authentication** (Signup & Login with email and password)
 - **Wallet Integration** (Users can add their wallet address later)
 - **AT Token Transactions**
-  - Claim **daily rewards** (20 AT tokens every 24 hours)
-  - **Deduct tokens** for participation in predictions
+  - Claim **daily rewards** (Configurable via `.env` file)
+  - **Deduct tokens** for participation in predictions (Configurable via `.env` file)
   - **Check user token balance** (Syncs with blockchain)
 - **Smart Contract Interaction**
   - Transfers tokens using Web3.js
@@ -44,6 +44,7 @@ PORT=5000
 MONGO_DB_CONNECTION_URI=your_mongo_db_uri
 PRIVATE_KEY=your_ganache_private_key
 RPC_URL=http://127.0.0.1:7545  # Ganache RPC URL
+DAILY_TOKEN=20  # Amount of AT tokens users receive as a daily reward
 ```
 > ⚠️ **Note:** Use the **private key from the first account in Ganache**.
 
@@ -88,16 +89,16 @@ npm run start-dev
 ### **🔹 User Routes**
 | METHOD | ENDPOINT | DESCRIPTION |
 |--------|------------|--------------|
-| `POST` | `/api/v1/users` | Register a new user |
-| `PUT` | `/api/v1/users/add-wallet` | Add a wallet address to an existing user |
-| `GET` | `/api/v1/users/:id` | Get a single user by ID |
-| `GET` | `/api/v1/users` | Get all users |
+| `POST` | `/api/users` | Register a new user |
+| `PUT` | `/api/users/add-wallet` | Add a wallet address to an existing user |
+| `GET` | `/api/users/:id` | Get a single user by ID |
+| `GET` | `/api/users` | Get all users |
 
 ### **🔹 Token & Smart Contract Routes**
 | METHOD | ENDPOINT | DESCRIPTION |
 |--------|------------|--------------|
-| `PUT` | `/api/v1/users/claim-daily-reward` | Claim 20 AT tokens (once every 24 hours) |
-| `PUT` | `/api/v1/users/deduct-tokens` | Deduct AT tokens from a user |
+| `PUT` | `/api/users/claim-daily-reward` | Claim daily AT tokens (Configurable in `.env`) |
+| `PUT` | `/api/users/deduct-tokens` | Deduct AT tokens from a user (Configurable in `.env`) |
 
 ---
 
