@@ -73,4 +73,39 @@ const contractAddress = "0xYourContractAddressHere";  // Replace this
 const contractABI = [...];  // Replace with your contract's ABI
 ```
 
-3. **Restart the Backe
+3. **Restart the Backend**
+```bash
+npm run start-dev
+```
+
+4. **Test API Endpoints with Your Own Wallet**
+   - Use **Postman** or **cURL** to test token transactions.
+
+---
+
+## 📡 API Endpoints
+
+### **🔹 User Routes**
+| METHOD | ENDPOINT | DESCRIPTION |
+|--------|------------|--------------|
+| `POST` | `/api/users` | Register a new user |
+| `PUT` | `/api/users/add-wallet` | Add a wallet address to an existing user |
+| `GET` | `/api/users/:id` | Get a single user by ID |
+| `GET` | `/api/users` | Get all users |
+
+### **🔹 Token & Smart Contract Routes**
+| METHOD | ENDPOINT | DESCRIPTION |
+|--------|------------|--------------|
+| `PUT` | `/api/users/claim-daily-reward` | Claim 20 AT tokens (once every 24 hours) |
+| `PUT` | `/api/users/deduct-tokens` | Deduct AT tokens from a user |
+
+---
+
+## 📜 License
+This project is **MIT Licensed**.
+
+## 👥 Contributors
+- **Your Name** (@your-github-username)
+
+Feel free to **fork, contribute, or suggest improvements**! 🚀
+
