@@ -24,8 +24,8 @@ router
     .put(claimDailyReward)
 
 router
-    .route("/token/deduct-tokens")
-    .post(deductTokens)
+    .route("/token/deductTokens")
+    .put(deductTokens)
 
 
 router

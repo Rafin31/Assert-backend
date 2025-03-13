@@ -60,12 +60,12 @@ const UserSchema = new mongoose.Schema({
 
 
 
-UserSchema.pre('save', function (next) {
-    const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(this.password, salt);
-    this.password = hashedPassword;
+UserSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) return next(); // ✅ Now it won't re-hash every update
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
     next();
-})
+});
 
 const User = mongoose.model("User", UserSchema);
 export default User;
