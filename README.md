@@ -89,16 +89,16 @@ npm run start-dev
 ### **🔹 User Routes**
 | METHOD | ENDPOINT | DESCRIPTION |
 |--------|------------|--------------|
-| `POST` | `/api/users` | Register a new user |
-| `PUT` | `/api/users/add-wallet` | Add a wallet address to an existing user |
-| `GET` | `/api/users/:id` | Get a single user by ID |
-| `GET` | `/api/users` | Get all users |
+| `POST` | `api/v1/users` | Register a new user |
+| `PUT` | `api/v1/users/add-wallet` | Add a wallet address to an existing user |
+| `GET` | `api/v1/users/:id` | Get a single user by ID |
+| `GET` | `api/v1/users` | Get all users |
 
 ### **🔹 Token & Smart Contract Routes**
 | METHOD | ENDPOINT | DESCRIPTION |
 |--------|------------|--------------|
-| `PUT` | `/api/users/claim-daily-reward` | Claim daily AT tokens (Configurable in `.env`) |
-| `PUT` | `/api/users/deduct-tokens` | Deduct AT tokens from a user (Configurable in `.env`) |
+| `PUT` | `api/v1/users/claim-daily-reward` | Claim daily AT tokens (Configurable in `.env`) |
+| `PUT` | `api/v1/users/deduct-tokens` | Deduct AT tokens from a user (Configurable in `.env`) |
 
 ---
 
