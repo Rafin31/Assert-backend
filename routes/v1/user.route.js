@@ -3,7 +3,7 @@ const router = express.Router()
 
 
 
-import { getAllUsers, getSingleUser, claimDailyReward, createUser, addWalletAddress } from '../../controllers/user.controller.js';
+import { getAllUsers, getSingleUser, claimDailyReward, createUser, addWalletAddress, deductTokens } from '../../controllers/user.controller.js';
 
 
 router
@@ -21,7 +21,11 @@ router
 
 router
     .route("/token/claimDailyReward")
-    .post(claimDailyReward)
+    .put(claimDailyReward)
+
+router
+    .route("/token/deduct-tokens")
+    .post(deductTokens)
 
 
 router

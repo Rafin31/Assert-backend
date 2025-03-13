@@ -36,43 +36,52 @@ export const getSingleUser = async (req, res) => {
     }
 };
 
+
+// ✅ Claim Daily Reward (Using Wallet Address)
 export const claimDailyReward = async (req, res) => {
     try {
         const { walletAddress } = req.body;
 
-        if (!web3.eth.accounts.wallet.add(walletAddress)) {
+        // ✅ Validate Wallet Address Format
+        if (!web3.utils.isAddress(walletAddress)) {
             return res.status(400).json({ success: false, message: "Invalid wallet address" });
         }
 
-        // Find or create user in DB
+        // ✅ Find User by Wallet Address
         let user = await User.findOne({ walletAddress });
         if (!user) {
-            user = new User({ walletAddress });
-            await user.save();
+            return res.status(404).json({ success: false, message: "Wallet not registered. Please register first." });
         }
 
+        // ✅ Check if User Has Already Claimed Reward in Last 24 Hours
         const now = new Date();
         if (user.lastLoginReward) {
             const timeDiff = now - new Date(user.lastLoginReward);
-            if (timeDiff < 24 * 60 * 60 * 1000) { // 24 hours in milliseconds
+            if (timeDiff < 24 * 60 * 60 * 1000) {
                 return res.status(400).json({ success: false, message: "Daily reward already claimed. Try again later." });
             }
         }
 
-        // Transfer 20 AT tokens to user's wallet
+        // ✅ Transfer 20 AT Tokens to User
         const tx = await contract.methods.transfer(walletAddress, DAILY_REWARD_AMOUNT).send({
             from: account.address,
             gas: 200000,
         });
 
-        // Update last claim time
+        // ✅ Fetch Updated Balance from Smart Contract
+        const updatedBalanceWei = await contract.methods.balanceOf(walletAddress).call();
+        const updatedBalance = web3.utils.fromWei(updatedBalanceWei, "ether"); // Convert from Wei to AT tokens
+
+        // ✅ Update Last Claim Time & Token Balance in MongoDB
         user.lastLoginReward = now;
+        user.totalToken = updatedBalance;
         await user.save();
 
         return res.status(200).json({
             success: true,
             message: `You received 20 AT tokens!`,
             transactionHash: tx.transactionHash,
+            newBalance: updatedBalance
         });
 
     } catch (error) {
@@ -80,6 +89,9 @@ export const claimDailyReward = async (req, res) => {
         return res.status(500).json({ success: false, message: "Error processing daily reward", error: error.message });
     }
 };
+
+
+
 
 
 export const createUser = async (req, res) => {
@@ -124,7 +136,6 @@ export const createUser = async (req, res) => {
     }
 };
 
-
 export const addWalletAddress = async (req, res) => {
     try {
         const { email, walletAddress } = req.body;
@@ -165,6 +176,61 @@ export const addWalletAddress = async (req, res) => {
 
     } catch (error) {
         console.error("Error updating wallet address:", error);
+        return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    }
+};
+
+
+export const deductTokens = async (req, res) => {
+    try {
+        const { email, amount } = req.body;
+
+
+        if (!email || !email.includes("@")) {
+            return res.status(400).json({ success: false, message: "Invalid email format" });
+        }
+
+        if (!amount || isNaN(amount) || amount <= 0) {
+            return res.status(400).json({ success: false, message: "Invalid amount" });
+        }
+
+        //Find User by Email
+        let user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Check if User Has Enough Tokens
+        const userBalance = parseFloat(user.totalToken);
+        if (userBalance < amount) {
+            return res.status(400).json({ success: false, message: "Insufficient balance" });
+        }
+
+        // Convert Amount to 18 Decimals (Wei Equivalent)
+        const amountWithDecimals = web3.utils.toWei(amount.toString(), "ether");
+
+        // Transfer Tokens Back to the Platform (Smart Contract Owner)
+        const tx = await contract.methods.transfer(account.address, amountWithDecimals).send({
+            from: user.walletAddress,
+            gas: 200000
+        });
+
+        // Deduct from User Balance
+        user.totalToken = (userBalance - amount).toString();
+        await user.save();
+
+        return res.status(200).json({
+            success: true,
+            message: `Successfully deducted ${amount} AT tokens from user and added back to platform`,
+            transactionHash: tx.transactionHash,
+            user: {
+                email: user.email,
+                newBalance: user.totalToken
+            }
+        });
+
+    } catch (error) {
+        console.error("Error deducting tokens:", error);
         return res.status(500).json({ success: false, message: "Server error", error: error.message });
     }
 };
