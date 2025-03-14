@@ -1,6 +1,8 @@
 import { ethers } from 'ethers'
 import jwt from 'jsonwebtoken';
 import User from '../model/user.model.js'
+import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
 
 export const getNonce = async (req, res) => {
     try {
@@ -66,3 +68,40 @@ export const verify = async (req, res) => {
         })
     }
 }
+
+
+export const signup = async (req, res) => {
+    try {
+        const { userName, email, password } = req.body;
+
+        // Validate Required Fields
+        if (!userName || !email || !password) {
+            return res.status(400).json({ success: false, message: "All fields are required" });
+        }
+
+
+        const existingUser = await User.findOne({ email });
+
+        if (existingUser) {
+            return res.status(400).json({ success: false, message: "Email is already registered" });
+        }
+
+        const newUser = new User({
+            userName,
+            email,
+            password,
+            totalToken: "0"
+        });
+
+        await newUser.save();
+
+        return res.status(201).json({ success: true, message: "User registered successfully" });
+
+    } catch (error) {
+        console.error("Signup Error:", error);
+        return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    }
+};
+
+
+

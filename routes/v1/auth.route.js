@@ -3,8 +3,13 @@ const router = express.Router()
 
 import {
     getNonce,
-    verify
+    verify,
+    signup
 } from '../../controllers/auth.controller.js';
+
+router
+    .route("/signup")
+    .post(signup)
 
 router
     .route("/nonce")
