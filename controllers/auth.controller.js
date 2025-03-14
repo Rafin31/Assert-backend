@@ -104,4 +104,46 @@ export const signup = async (req, res) => {
 };
 
 
+export const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
+        // Validate Required Fields
+        if (!email || !password) {
+            return res.status(400).json({ success: false, message: "All fields are required" });
+        }
+
+        // Find User by Email
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ success: false, message: "Invalid email or password" });
+        }
+
+        // Check Password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ success: false, message: "Invalid email or password" });
+        }
+
+        // Generate JWT Token
+        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
+            expiresIn: "7d" // Token valid for 7 days
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Login successful",
+            token,
+            user: {
+                id: user._id,
+                userName: user.userName,
+                email: user.email,
+                totalToken: user.totalToken
+            }
+        });
+
+    } catch (error) {
+        console.error("Login Error:", error);
+        return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    }
+};

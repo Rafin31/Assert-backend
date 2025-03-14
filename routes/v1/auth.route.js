@@ -4,12 +4,17 @@ const router = express.Router()
 import {
     getNonce,
     verify,
-    signup
+    signup,
+    login
 } from '../../controllers/auth.controller.js';
 
 router
     .route("/signup")
     .post(signup)
+
+router
+    .route("/login")
+    .post(login)
 
 router
     .route("/nonce")
