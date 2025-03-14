@@ -45,10 +45,29 @@ MONGO_DB_CONNECTION_URI=your_mongo_db_uri
 PRIVATE_KEY=your_ganache_private_key
 RPC_URL=http://127.0.0.1:7545  # Ganache RPC URL
 DAILY_TOKEN=20  # Amount of AT tokens users receive as a daily reward
+TOKEN_DEDUCTION=5  # Amount of AT tokens deducted when participating in predictions
+JWT_SECRET=your_generated_secret_here  # JWT Secret for authentication
 ```
 > ⚠️ **Note:** Use the **private key from the first account in Ganache**.
 
-### **4️⃣ Start the Backend Server**
+### **4️⃣ Generate a Secure JWT Secret Key**
+You can generate a strong JWT secret key using any of the following methods:
+
+#### **Using Node.js Console**
+```bash
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+#### **Using OpenSSL (Linux & macOS)**
+```bash
+openssl rand -hex 64
+```
+#### **Using Python**
+```bash
+python -c "import secrets; print(secrets.token_hex(64))"
+```
+Copy the generated key and paste it into your `.env` file under `JWT_SECRET`.
+
+### **5️⃣ Start the Backend Server**
 ```bash
 npm run start-dev  # For development with nodemon
 npm run start      # For production
@@ -79,26 +98,32 @@ const contractABI = [...];  // Replace with your contract's ABI
 npm run start-dev
 ```
 
-4. **Test API Endpoints with Your Own Wallet**
+4. **Test api/v1 Endpoints with Your Own Wallet**
    - Use **Postman** or **cURL** to test token transactions.
 
 ---
 
-## 📡 API Endpoints
+## 📡 api/v1 Endpoints
+
+### **🔹 Authentication Routes**
+| METHOD | ENDPOINT | DESCRIPTION |
+|--------|------------|--------------|
+| `POST` | `/api/v1/auth/signup` | Register a new user |
+| `POST` | `/api/v1/auth/login` | Login and receive a JWT token |
 
 ### **🔹 User Routes**
 | METHOD | ENDPOINT | DESCRIPTION |
 |--------|------------|--------------|
-| `POST` | `api/v1/users` | Register a new user |
-| `PUT` | `api/v1/users/add-wallet` | Add a wallet address to an existing user |
-| `GET` | `api/v1/users/:id` | Get a single user by ID |
-| `GET` | `api/v1/users` | Get all users |
+| `POST` | `/api/v1/users` | Register a new user |
+| `PUT` | `/api/v1/users/add-wallet` | Add a wallet address to an existing user |
+| `GET` | `/api/v1/users/:id` | Get a single user by ID |
+| `GET` | `/api/v1/users` | Get all users |
 
 ### **🔹 Token & Smart Contract Routes**
 | METHOD | ENDPOINT | DESCRIPTION |
 |--------|------------|--------------|
-| `PUT` | `api/v1/users/claim-daily-reward` | Claim daily AT tokens (Configurable in `.env`) |
-| `PUT` | `api/v1/users/deduct-tokens` | Deduct AT tokens from a user (Configurable in `.env`) |
+| `PUT` | `/api/v1/users/token/claimDailyReward` | Claim daily AT tokens (Configurable in `.env`) |
+| `PUT` | `/api/v1/users/token/deductTokens` | Deduct AT tokens from a user (Configurable in `.env`) |
 
 ---
 
