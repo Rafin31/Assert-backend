@@ -6,10 +6,13 @@ const port = process.env.PORT || 5000;
 
 import userRoutes from './routes/v1/user.route.js'
 import authRoutes from './routes/v1/auth.route.js'
+import footballRoutes from './routes/v1/football.route.js'
+
 
 //routes
 app.use('/api/v1/users', userRoutes)
 app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/football', footballRoutes);
 
 
 async function checkBalance() {
