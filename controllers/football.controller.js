@@ -25,7 +25,7 @@ export const getFixturesByDateRange = async (req, res) => {
         });
     }
 
-    const url = `https://api.sportmonks.com/v3/football/fixtures/between/${date_from.trim()}/${date_to.trim()}?include=scores`;
+    const url = `https://api.sportmonks.com/v3/football/fixtures/between/${date_from.trim()}/${date_to.trim()}?include=scores&include=league`;
 
     try {
         const response = await axios.get(url, {
