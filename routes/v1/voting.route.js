@@ -3,12 +3,17 @@ const router = express.Router()
 
 
 
-import { castVote } from '../../controllers/votingController.js';
+import { castVote, getUserVotes } from '../../controllers/votingController.js';
 
 
 router
     .route("/vote/castVote")
     .post(castVote)
+
+
+router
+    .route("/vote/:id")
+    .get(getUserVotes)
 
 
 

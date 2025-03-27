@@ -69,3 +69,23 @@ export const castVote = async (req, res) => {
     }
 };
 
+export const getUserVotes = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        if (!userId) {
+            return res.status(400).json({ success: false, message: 'User ID is required' });
+        }
+
+        const votes = await Vote.find({ userId });
+
+        res.status(200).json({ success: true, votes });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching user votes',
+            error: error.message,
+        });
+    }
+};
+
