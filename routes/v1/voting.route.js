@@ -1,20 +1,9 @@
-import express from 'express'
-const router = express.Router()
+import express from "express";
+const router = express.Router();
 
+import { castVote, getUserVotes } from "../../controllers/votingController.js";
 
+router.route("/vote/user/:userId").get(getUserVotes);
+router.route("/vote/castVote").post(castVote);
 
-import { castVote, getUserVotes } from '../../controllers/votingController.js';
-
-
-router
-    .route("/vote/castVote")
-    .post(castVote)
-
-
-router
-    .route("/vote/:id")
-    .get(getUserVotes)
-
-
-
-export default router  
+export default router;
