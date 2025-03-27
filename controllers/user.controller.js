@@ -67,17 +67,15 @@ export const claimDailyReward = async (req, res) => {
 
     //   Check if User Has Already Claimed Reward in Last 24 Hours
     const now = new Date();
-    // if (user.lastLoginReward) {
-    //   const timeDiff = now - new Date(user.lastLoginReward);
-    //   if (timeDiff < 24 * 60 * 60 * 1000) {
-    //     return res
-    //       .status(400)
-    //       .json({
-    //         success: false,
-    //         message: "Daily reward already claimed. Try again later.",
-    //       });
-    //   }
-    // }
+    if (user.lastLoginReward) {
+      const timeDiff = now - new Date(user.lastLoginReward);
+      if (timeDiff < 24 * 60 * 60 * 1000) {
+        return res.status(400).json({
+          success: false,
+          message: "Daily reward already claimed. Try again later.",
+        });
+      }
+    }
 
     //   Transfer 20 AT Tokens to User
     const tx = await contract.methods

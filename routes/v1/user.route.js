@@ -17,7 +17,7 @@ router.route("/addNewUser").post(createUser);
 
 router.route("/add-wallet").put(addWalletAddress);
 
-router.route("/token/claimDailyReward").put(claimDailyReward);
+router.route("/token/claimDailyReward").post(claimDailyReward);
 
 router.route("/token/deductTokens").put(deductTokens);
 
