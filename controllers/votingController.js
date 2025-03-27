@@ -23,7 +23,7 @@ export const castVote = async (req, res) => {
 
         const existingVote = await Vote.findOne({ userId, fixtureId });
         if (existingVote) {
-            return res.status(400).json({ success: false, message: "You have already voted for this fixture" });
+            return res.status(400).json({ success: false, message: "You have already voted for this match" });
         }
 
         // Deduct AT Tokens from user and send to the contract owner's wallet
