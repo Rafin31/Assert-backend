@@ -37,7 +37,6 @@ const UserSchema = new mongoose.Schema({
     },
     walletAddress: {
         type: String,
-        unique: true,
         sparse: true // Allows it to be added later
     },
     lastLoginReward: {

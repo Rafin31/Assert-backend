@@ -17,7 +17,7 @@ export const getFixturesByDateRange = async (req, res) => {
     const now = Date.now();
 
     // Use existing cache if it's less than 2 minute old
-    if (cache[key] && now - cache[key].timestamp < 2 * 60 * 1000) {
+    if (cache[key] && now - cache[key].timestamp < 10 * 60 * 1000) {
         return res.status(200).json({
             success: true,
             source: 'cache',
