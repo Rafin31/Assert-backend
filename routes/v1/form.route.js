@@ -1,0 +1,126 @@
+import express from 'express';
+import Form from '../../model/Form.js';
+
+const router = express.Router();
+
+/**
+ * @route   POST /api/v1/form/submit
+ * @desc    Submit a new form entry
+ */
+router.post('/submit', async (req, res) => {
+  console.log('Received form data:', req.body);
+  try {
+    const { username, realm, question, moreDetails, type, status } = req.body;
+    
+    // Validate required fields
+    if (!username || !realm || !question) {
+      return res.status(400).json({ success: false, message: "Username, realm, and question are required" });
+    }
+
+    const newForm = new Form({
+      username,
+      realm,
+      question,
+      moreDetails,
+      type,
+      status,
+    });
+
+    const savedForm = await newForm.save();
+    console.log('Form saved:', savedForm);
+
+    res.status(201).json({ success: true, data: savedForm });
+  } catch (error) {
+    console.error('Error saving form:', error);
+    res.status(500).json({ success: false, message: "Error saving form", error: error.message });
+  }
+});
+
+/**
+ * @route   GET /api/v1/form
+ * @desc    Fetch all form entries (sorted by latest)
+ */
+router.get('/', async (req, res) => {
+  try {
+    const forms = await Form.find().sort({ createdAt: -1 }); // Sort by newest
+    res.status(200).json({ success: true, data: forms });
+  } catch (error) {
+    console.error('Error fetching form data:', error);
+    res.status(500).json({ success: false, message: "Error fetching form data", error: error.message });
+  }
+});
+
+/**
+ * @route   PUT /api/v1/form/:id/reply
+ * @desc    Add a reply to a form entry
+ */
+router.put('/:id/reply', async (req, res) => {
+    try {
+        const { reply, username } = req.body;
+        console.log("📝 Received reply request:", req.body);
+        console.log("🔎 Form ID:", req.params.id);
+
+        if (!reply || !username) {
+            return res.status(400).json({ success: false, message: "Reply and username are required" });
+        }
+
+        // Ensure ID is correctly formatted as ObjectId
+        const formId = req.params.id;
+        if (!formId.match(/^[0-9a-fA-F]{24}$/)) {
+            console.error("❌ Invalid Form ID:", formId);
+            return res.status(400).json({ success: false, message: "Invalid Form ID format" });
+        }
+
+        const form = await Form.findById(formId);
+        if (!form) {
+            console.error("❌ Form not found for ID:", formId);
+            return res.status(404).json({ success: false, message: "Form not found" });
+        }
+
+        // Add the new reply
+        const newReply = {
+            reply,
+            username,
+            timestamp: new Date().toISOString(),
+        };
+
+        form.replies.push(newReply);
+        await form.save();
+
+        console.log("✅ Reply added successfully:", newReply);
+        res.status(200).json({ success: true, message: "Reply added successfully", data: form });
+
+    } catch (error) {
+        console.error("❌ Error adding reply:", error.message);
+        res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
+});
+
+router.put('/:id/like', async (req, res) => {
+  try {
+    const { username } = req.body;
+    const formId = req.params.id;
+
+    const form = await Form.findById(formId);
+    if (!form) {
+      return res.status(404).json({ success: false, message: "Form not found" });
+    }
+
+    if (form.likedBy.includes(username)) {
+      return res.status(400).json({ success: false, message: "User has already liked this post" });
+    }
+
+    form.likeCount += 1;
+    form.likedBy.push(username);
+    await form.save();
+
+    res.status(200).json({ success: true, message: "Like added", data: form });
+  } catch (error) {
+    console.error("Error adding like:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error", error });
+  }
+});
+
+
+
+export default router;
