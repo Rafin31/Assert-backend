@@ -49,68 +49,36 @@ export const claimDailyReward = async (req, res) => {
   try {
     const { walletAddress } = req.body;
 
-    //   Validate Wallet Address Format
-    if (!web3.utils.isAddress(walletAddress)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid wallet address" });
-    }
-
-    //   Find User by Wallet Address
-    let user = await User.findOne({ walletAddress });
+    // Validate Wallet
+    const user = await User.findOne({ walletAddress });
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "Wallet not registered. Please register first.",
-      });
+      return res.status(404).json({ success: false, message: "Wallet not registered" });
     }
 
-    //   Check if User Has Already Claimed Reward in Last 24 Hours
     const now = new Date();
     if (user.lastLoginReward) {
       const timeDiff = now - new Date(user.lastLoginReward);
       if (timeDiff < 24 * 60 * 60 * 1000) {
-        return res.status(400).json({
-          success: false,
-          message: "Daily reward already claimed. Try again later.",
-        });
+        return res.status(400).json({ success: false, message: "Reward already claimed in last 24 hours." });
       }
     }
 
-    //   Transfer 20 AT Tokens to User
-    const tx = await contract.methods
-      .transfer(walletAddress, DAILY_REWARD_AMOUNT)
-      .send({
-        from: account.address,
-        gas: 200000,
-      });
-
-    //   Fetch Updated Balance from Smart Contract
-    const updatedBalanceWei = await contract.methods
-      .balanceOf(walletAddress)
-      .call();
-    const updatedBalance = web3.utils.fromWei(updatedBalanceWei, "ether"); // Convert from Wei to AT tokens
-
-    //   Update Last Claim Time & Token Balance in MongoDB
+    // Add token to DB only (simulate blockchain)
+    user.totalToken += 20;
     user.lastLoginReward = now;
-    user.totalToken = updatedBalance;
     await user.save();
 
     return res.status(200).json({
       success: true,
-      message: `You received 20 AT tokens!`,
-      transactionHash: tx.transactionHash,
-      newBalance: updatedBalance,
+      message: "You received 20 AT tokens!",
+      newBalance: user.totalToken,
     });
   } catch (error) {
-    console.error("Daily Reward Error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Error processing daily reward",
-      error: error.message,
-    });
+    console.error("Reward Error:", error);
+    return res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
+
 
 export const createUser = async (req, res) => {
   try {
