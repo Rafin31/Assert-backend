@@ -3,10 +3,10 @@ import mongoose from 'mongoose';
 const ReplySchema = new mongoose.Schema({
     reply: { type: String, required: true },
     username: { type: String, required: true },
-    timestamp: { 
-        type: Date, 
+    timestamp: {
+        type: Date,
         default: () => new Date() // Set current time for replies
-      },
+    },
 });
 
 const FormSchema = new mongoose.Schema({
@@ -16,11 +16,11 @@ const FormSchema = new mongoose.Schema({
     moreDetails: String,
     type: String,
     replies: { type: [ReplySchema], default: [] },
-    timestamp: { 
-        type: Date, 
-        default: () => new Date() 
+    timestamp: {
+        type: Date,
+        default: () => new Date()
     },
-    status: { type: String, default: "pending" },
+    status: { type: String, default: "approved" },
     likeCount: { type: Number, default: 0 },
     likedBy: { type: [String], default: [] } // ✅ Track users who liked
 });

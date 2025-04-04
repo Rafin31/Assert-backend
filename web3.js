@@ -22,4 +22,26 @@ console.log(`Wallet Address: ${account.address}`.bold.green.inverse);
 console.log(`Contract Address: ${process.env.CONTRACT_ADDRESS_METAMASK}`.bold.green.inverse);
 
 
+
+async function checkConnectionAndBalance() {
+    const isConnected = await web3.eth.net.isListening();
+    if (!isConnected) {
+        return console.log("❌ Not connected to a network");
+    }
+
+    const networkId = await web3.eth.net.getId();
+    const networkName = {
+        11155111: "Sepolia",
+    }[networkId] || "Unknown";
+
+    console.log(`✅ Connected to ${networkName} (ID: ${networkId})`);
+
+    const balanceWei = await web3.eth.getBalance(account.address);
+    const balanceEth = web3.utils.fromWei(balanceWei, "ether");
+    console.log(`💰 ${account.address} has ${balanceEth} ETH`);
+}
+
+// checkConnectionAndBalance()
+
+
 export { web3, contract, account };
