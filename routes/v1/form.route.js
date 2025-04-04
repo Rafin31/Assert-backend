@@ -123,6 +123,19 @@ router.put('/:id/like', async (req, res) => {
     }
   } catch (error) {
     console.error("Error updating like:", error);
+
+    if (form.likedBy.includes(username)) {
+      return res.status(400).json({ success: false, message: "User has already liked this post" });
+    }
+
+    form.likeCount += 1;
+    form.likedBy.push(username);
+    await form.save();
+
+    res.status(200).json({ success: true, message: "Like added", data: form });
+  } catch (error) {
+    console.error("Error adding like:", error);
+
     res.status(500).json({ success: false, message: "Internal Server Error", error });
   }
 });
