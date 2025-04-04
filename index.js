@@ -1,43 +1,27 @@
 import "./config/global.js";
 import { web3, contract, account } from "./web3.js";
-//import app from "./app.js";
+import app from "./app.js";
 import errorHandler from "./middlewires/errorHandler.js";
 const port = process.env.PORT || 5000;
 
-// Rashed added start
-import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
-import dotenv from "dotenv";
-import router from './routes/v1/form.route.js'; // <-- Ensure this path is correct
 
 
-dotenv.config();
-const app = express();
 
 
-// MongoDB Connection
-mongoose
-  .connect(process.env.MONGO_DB_CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("MongoDB Connected".bold.inverse.green))
-  .catch((err) => console.error("MongoDB Connection Error:", err));
 
-// Middleware
-app.use(cors());
-app.use(express.json()); // <-- Using express's built-in JSON parsing
-app.use('/api/v1/form', router); // <-- API routing for form
 // Rashed added end
 
 import userRoutes from "./routes/v1/user.route.js";
 import authRoutes from "./routes/v1/auth.route.js";
 import footballRoutes from "./routes/v1/football.route.js";
 import votingRoutes from "./routes/v1/voting.route.js";
-
+import formRouter from './routes/v1/form.route.js'; // <-- Form route added by Rashed
 //routes
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/football", footballRoutes);
 app.use("/api/v1/prediction", votingRoutes);
+app.use('/api/v1/form', formRouter); // <-- API routing for form (Rashed added)
 
 async function checkBalance() {
   try {
