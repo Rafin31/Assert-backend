@@ -106,6 +106,24 @@ router.put('/:id/like', async (req, res) => {
       return res.status(404).json({ success: false, message: "Form not found" });
     }
 
+    const alreadyLiked = form.likedBy.includes(username); // Check if the user has already liked
+
+    if (alreadyLiked) {
+      // If the user has liked, remove the like
+      form.likeCount -= 1;
+      form.likedBy = form.likedBy.filter(user => user !== username); // Remove the user from the likedBy array
+      await form.save();
+      return res.status(200).json({ success: true, message: "Like removed", data: form });
+    } else {
+      // If the user has not liked, add the like
+      form.likeCount += 1;
+      form.likedBy.push(username); // Add the user to the likedBy array
+      await form.save();
+      return res.status(200).json({ success: true, message: "Like added", data: form });
+    }
+  } catch (error) {
+    console.error("Error updating like:", error);
+
     if (form.likedBy.includes(username)) {
       return res.status(400).json({ success: false, message: "User has already liked this post" });
     }
@@ -117,6 +135,7 @@ router.put('/:id/like', async (req, res) => {
     res.status(200).json({ success: true, message: "Like added", data: form });
   } catch (error) {
     console.error("Error adding like:", error);
+
     res.status(500).json({ success: false, message: "Internal Server Error", error });
   }
 });
