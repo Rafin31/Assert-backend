@@ -40,6 +40,8 @@ export const getFixturesByDateRange = async (req, res) => {
             timestamp: now,
         };
 
+
+
         return res.status(200).json({
             success: true,
             source: 'live',

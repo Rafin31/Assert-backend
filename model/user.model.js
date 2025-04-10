@@ -43,7 +43,7 @@ const UserSchema = new mongoose.Schema({
         type: Date,
         default: null
     },
-    totalToken: {
+    tokenBalance: {
         type: String,
         default: "0"
     },

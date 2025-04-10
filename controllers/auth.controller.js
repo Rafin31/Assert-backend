@@ -93,7 +93,7 @@ export const signup = async (req, res) => {
       userName,
       email,
       password,
-      totalToken: "0",
+      tokenBalance: "0",
     });
 
     await newUser.save();
@@ -153,7 +153,7 @@ export const login = async (req, res) => {
         id: user._id,
         userName: user.userName,
         email: user.email,
-        totalToken: user.totalToken,
+        tokenBalance: user.tokenBalance,
         lastLoginReward: user.lastLoginReward,
         walletAddress: user.walletAddress,
       },

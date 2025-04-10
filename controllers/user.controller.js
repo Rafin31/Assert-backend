@@ -63,15 +63,15 @@ export const claimDailyReward = async (req, res) => {
     // }
 
     // Add token to DB only (simulate blockchain)
-    let totalToken = Number(user.totalToken)
-    user.totalToken = totalToken + DAILY_TOKEN_AMOUNT;
+    let tokenBalance = Number(user.tokenBalance)
+    user.tokenBalance = tokenBalance + DAILY_TOKEN_AMOUNT;
     user.lastLoginReward = now;
     await user.save();
 
     return res.status(200).json({
       success: true,
       message: `You received ${DAILY_TOKEN_AMOUNT} AT tokens!`,
-      newBalance: user.totalToken,
+      newBalance: user.tokenBalance,
     });
   } catch (error) {
     console.error("Reward Error:", error);
@@ -206,7 +206,7 @@ export const deductTokens = async (req, res) => {
     }
 
     // Check if user has enough tokens
-    const userTokenBalance = parseFloat(user.totalToken || 0);
+    const userTokenBalance = parseFloat(user.tokenBalance || 0);
     const deductionAmount = parseFloat(amount);
 
     if (userTokenBalance < deductionAmount) {
@@ -217,13 +217,13 @@ export const deductTokens = async (req, res) => {
     }
 
     // Deduct tokens
-    user.totalToken = (userTokenBalance - deductionAmount); // Optional: limit decimal places
+    user.tokenBalance = (userTokenBalance - deductionAmount); // Optional: limit decimal places
     await user.save();
 
     return res.status(200).json({
       success: true,
       message: `${amount} AT tokens successfully deducted from ${email}`,
-      newBalance: user.totalToken,
+      newBalance: user.tokenBalance,
     });
   } catch (error) {
     console.error("Error deducting tokens:", error);
@@ -289,7 +289,7 @@ export const resetWalletBalance = async (req, res) => {
     const updatedBalance = web3.utils.fromWei(updatedBalanceWei, "ether");
 
     // Update MongoDB to Show Zero Balance
-    user.totalToken = 0;
+    user.tokenBalance = 0;
     await user.save();
 
     return res.status(200).json({
