@@ -1,4 +1,4 @@
-import Form from "../model/Form.js";
+import Form from "../model/form.model.js";
 
 // Store form data
 export const submitForm = async (req, res) => {
