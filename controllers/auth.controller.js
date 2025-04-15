@@ -138,7 +138,7 @@ export const login = async (req, res) => {
 
     // Generate JWT Token
     const token = jwt.sign(
-      { id: user._id, email: user.email },
+      { id: user._id, email: user.email, userType: user.userType},
       process.env.JWT_SECRET,
       {
         expiresIn: "7d", // Token valid for 7 days
@@ -156,6 +156,7 @@ export const login = async (req, res) => {
         tokenBalance: user.tokenBalance,
         lastLoginReward: user.lastLoginReward,
         walletAddress: user.walletAddress,
+        userType: user.userType, // ✅ Add this line!
       },
     });
   } catch (error) {

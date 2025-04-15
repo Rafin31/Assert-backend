@@ -12,7 +12,7 @@ import footballRoutes from "./routes/v1/football.route.js";
 import votingRoutes from "./routes/v1/voting.route.js";
 import formRouter from './routes/v1/form.route.js'
 import predictionRouter from './routes/v1/prediction.route.js'
-
+import pollRouter from './routes/v1/poll.route.js'
 
 //routes
 app.use("/api/v1/users", userRoutes);
@@ -21,6 +21,7 @@ app.use("/api/v1/football", footballRoutes);
 app.use("/api/v1/prediction", votingRoutes);
 app.use('/api/v1/form', formRouter);
 app.use('/api/v1/userPrediction', predictionRouter);
+app.use('/api/v1/userPoll', pollRouter);
 
 
 //no route found
