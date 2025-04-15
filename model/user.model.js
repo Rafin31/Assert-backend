@@ -39,6 +39,11 @@ const UserSchema = new mongoose.Schema({
         type: String,
         sparse: true // Allows it to be added later
     },
+    userType: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user'
+    },
     lastLoginReward: {
         type: Date,
         default: null
