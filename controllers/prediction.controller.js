@@ -1,4 +1,4 @@
-import Prediction from '../model/prediction.model.js'; // Updated model import
+import Prediction from '../model/prediction.model.js';
 
 // Store form data
 export const submitForm = async (req, res) => {
@@ -57,7 +57,7 @@ export const showPredictions = async (req, res) => {
 
 export const votePrediction = async (req, res) => {
   try {
-    const { predictionId, voteType, username, email, timestamp} = req.body;
+    const { predictionId, voteType, username, email, timestamp } = req.body;
 
     // Check for missing data
     if (!predictionId || !voteType || !username || !email) {
@@ -73,7 +73,7 @@ export const votePrediction = async (req, res) => {
 
     // Update the votes based on the voteType
     if (voteType === "yes") {
-      prediction.outcome.yesVotes.push({ username, email, timestamp});
+      prediction.outcome.yesVotes.push({ username, email, timestamp });
     } else if (voteType === "no") {
       prediction.outcome.noVotes.push({ username, email, timestamp });
     } else {

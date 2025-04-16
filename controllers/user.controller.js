@@ -55,12 +55,12 @@ export const claimDailyReward = async (req, res) => {
     }
 
     const now = new Date();
-    // if (user.lastLoginReward) {
-    //   const timeDiff = now - new Date(user.lastLoginReward);
-    //   if (timeDiff < 24 * 60 * 60 * 1000) {
-    //     return res.status(400).json({ success: false, message: "Reward already claimed in last 24 hours." });
-    //   }
-    // }
+    if (user.lastLoginReward) {
+      const timeDiff = now - new Date(user.lastLoginReward);
+      if (timeDiff < 24 * 60 * 60 * 1000) {
+        return res.status(400).json({ success: false, message: "Reward already claimed in last 24 hours." });
+      }
+    }
 
     // Add token to DB only (simulate blockchain)
     let tokenBalance = Number(user.tokenBalance)
