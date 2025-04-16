@@ -5,6 +5,7 @@ const { Schema } = mongoose;
 const voterSchema = new Schema({
   username: { type: String, required: true },
   email: { type: String, required: true },
+  votedAt: { type: Date, default: Date.now },
 }); 
 
 const optionSchema = new Schema({
@@ -31,7 +32,7 @@ const pollSchema = new Schema({
   email: { type: String },
   outcome: [optionSchema],
   timestamp: { type: Date, default: Date.now },
-  type: { type: String, default: "prediction" },
+  type: { type: String, default: "poll" },
   status: { type: String, default: "pending" },
   results: [resultSchema],
   rule: [ruleSchema],
