@@ -79,7 +79,11 @@ export const voteOnPoll = async (req, res) => {
       }
 
       option.votes += 1;
-      option.voters.push({ username, email });
+      option.voters.push({
+        username,
+        email,
+        votedAt: new Date(),
+      });
 
       await poll.save();
 
@@ -90,3 +94,68 @@ export const voteOnPoll = async (req, res) => {
       return res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
+
+// Show logged in user poll participation
+export const showParticipatedPolls = async (req, res) => {
+  try {
+    // Fetch all predictions without filtering
+    const polls = await Poll.find();
+
+    res.status(200).json({ success: true, data: polls });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching predictions", error: error.message });
+  }
+};
+
+
+// Show admin all the pending polls for approval
+export const showAdminApprovalPoll = async (req, res) => {
+  try {
+    // Fetch all predictions without filtering
+    const polls = await Poll.find();
+
+    res.status(200).json({ success: true, data: polls });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching predictions", error: error.message });
+  }
+};
+
+
+// admin submit pending poll for approval or rejection with rules and closing
+export const showAdminUpdateStatusPoll = async (req, res) => {
+  const { id } = req.params;
+  const { status, rule } = req.body;
+
+  try {
+    // Validation for 'approved' status
+    if (status === "approved") {
+      if (!rule || !rule.condition?.trim() || !rule.closingDate) {
+        return res.status(400).json({
+          success: false,
+          message: "Condition and closingDate are required for approval."
+        });
+      }
+    }
+
+    const updateData = { status };
+
+    if (status === "approved") {
+      updateData.rule = [{
+        condition: rule.condition.trim(),
+        closingDate: new Date(rule.closingDate)
+      }];
+    }
+
+    const updated = await Poll.findByIdAndUpdate(id, updateData, { new: true });
+
+    if (updated) {
+      return res.json({ success: true, data: updated });
+    } else {
+      return res.status(404).json({ success: false, message: "Poll not found" });
+    }
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
