@@ -13,6 +13,7 @@ import votingRoutes from "./routes/v1/voting.route.js";
 import formRouter from './routes/v1/form.route.js'
 import predictionRouter from './routes/v1/prediction.route.js'
 import pollRouter from './routes/v1/poll.route.js'
+import notificationsRouter from './routes/v1/notifications.route.js'
 
 //routes
 app.use("/api/v1/users", userRoutes);
@@ -22,6 +23,7 @@ app.use("/api/v1/prediction", votingRoutes);
 app.use('/api/v1/form', formRouter);
 app.use('/api/v1/userPrediction', predictionRouter);
 app.use('/api/v1/userPoll', pollRouter);
+app.use('/api/v1/notifications', notificationsRouter);
 
 
 //no route found

@@ -2,6 +2,7 @@ import Vote from "../model/vote.model.js";
 import User from "../model/user.model.js"; // Ensure user exists before voting
 import { contract, account, web3 } from "../web3.js";
 import axios from "axios";
+import { createNotification } from "./notifications.controller.js";
 
 const TOKEN_DEDUCTION_FOR_VOTE = Number(process.env.TOKEN_DEDUCTION_FOR_VOTE) || 5; // Ensure it's an integer
 const TOKEN_REWARD = Number(process.env.TOKEN_REWARD) || 10;
@@ -125,7 +126,7 @@ const handleFixtureProcessing = async (fixture, fixtureId, res, cache) => {
   if (homeScore > awayScore) winningTeamName = homeTeamName;
   else if (awayScore > homeScore) winningTeamName = awayTeamName;
 
-  const votes = await Vote.find({ fixtureId, isRewarded: false });
+  const votes = await Vote.find({ fixtureId, isProcessed: false });
 
   if (!votes.length) {
     return res.status(200).json({ message: 'No pending votes to process.' });
@@ -135,21 +136,38 @@ const handleFixtureProcessing = async (fixture, fixtureId, res, cache) => {
 
   for (const vote of votes) {
     vote.matchResult = winningTeamName || 'Draw';
-    vote.isRewarded = true;
+    vote.isProcessed = true;
 
     const votedTeam = vote.teamVoted?.trim().toLowerCase();
     const winningTeam = winningTeamName?.trim().toLowerCase();
 
+    let notification;
+
+    const user = await User.findById(vote.userId);
+
     if (winningTeamName && votedTeam === winningTeam) {
-      const user = await User.findById(vote.userId);
+
       if (user) {
-        user.tokenBalance = Number(user.tokenBalance) + 10;
+        user.tokenBalance = Number(user.tokenBalance) + TOKEN_REWARD;
         await user.save();
         rewardedCount++;
+
+        vote.isRewarded = true;
+
+        notification = {
+          title: `You won for ${fixture.name}!`,
+          message: `You received ${TOKEN_REWARD} AT tokens as a reward.`,
+        };
       }
+    } else {
+      notification = {
+        title: `Result Published for ${fixture.name}`,
+        message: `You didn't win this time. Better luck next time!`,
+      };
     }
 
     await vote.save();
+    await createNotification(user._id, notification);
   }
 
   return res.status(200).json({

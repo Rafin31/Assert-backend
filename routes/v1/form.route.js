@@ -5,7 +5,6 @@ const router = express.Router();
 
 
 router.post('/submit', async (req, res) => {
-  console.log('Received form data:', req.body);
   try {
     const { username, realm, question, moreDetails, type, status } = req.body;
 
@@ -24,7 +23,6 @@ router.post('/submit', async (req, res) => {
     });
 
     const savedForm = await newForm.save();
-    console.log('Form saved:', savedForm);
 
     res.status(201).json({ success: true, data: savedForm });
   } catch (error) {
@@ -48,8 +46,6 @@ router.get('/', async (req, res) => {
 router.put('/:id/reply', async (req, res) => {
   try {
     const { reply, username } = req.body;
-    console.log("📝 Received reply request:", req.body);
-    console.log("🔎 Form ID:", req.params.id);
 
     if (!reply || !username) {
       return res.status(400).json({ success: false, message: "Reply and username are required" });
@@ -78,7 +74,6 @@ router.put('/:id/reply', async (req, res) => {
     form.replies.push(newReply);
     await form.save();
 
-    console.log("✅ Reply added successfully:", newReply);
     res.status(200).json({ success: true, message: "Reply added successfully", data: form });
 
   } catch (error) {

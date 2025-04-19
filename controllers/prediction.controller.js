@@ -28,7 +28,6 @@ export const submitForm = async (req, res) => {
 
     // Save the new prediction to the database
     const savedPrediction = await newPrediction.save();
-    console.log("Prediction saved:", savedPrediction);
 
     res.status(201).json({ success: true, data: savedPrediction });
   } catch (error) {

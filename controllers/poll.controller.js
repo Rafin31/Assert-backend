@@ -28,7 +28,7 @@ export const submitForm = async (req, res) => {
 
     // Save the new prediction to the database
     const savedPoll = await newPoll.save();
-    console.log("Prediction saved:", savedPoll);
+
 
     res.status(201).json({ success: true, data: savedPoll });
   } catch (error) {
@@ -55,44 +55,44 @@ export const showPoll = async (req, res) => {
 };
 
 export const voteOnPoll = async (req, res) => {
-    try {
-      const { pollId } = req.params;
-      const { optionId, username, email } = req.body;
+  try {
+    const { pollId } = req.params;
+    const { optionId, username, email } = req.body;
 
-      const poll = await Poll.findById(pollId);
-      if (!poll) {
-        return res.status(404).json({ success: false, message: "Poll not found" });
-      }
-
-      const option = poll.outcome.id(optionId);
-      if (!option) {
-        return res.status(404).json({ success: false, message: "Option not found" });
-      }
-
-      // Prevent duplicate voting
-      const alreadyVoted = option.voters.some(
-        (voter) => voter.email === email
-      );
-
-      if (alreadyVoted) {
-        return res.status(400).json({ success: false, message: "You have already voted for this option" });
-      }
-
-      option.votes += 1;
-      option.voters.push({
-        username,
-        email,
-        votedAt: new Date(),
-      });
-
-      await poll.save();
-
-      return res.status(200).json({ success: true, message: "Vote registered", updatedPoll: poll });
-
-    } catch (error) {
-      console.error("🔥 Server error while voting:", error);
-      return res.status(500).json({ success: false, message: "Server error" });
+    const poll = await Poll.findById(pollId);
+    if (!poll) {
+      return res.status(404).json({ success: false, message: "Poll not found" });
     }
+
+    const option = poll.outcome.id(optionId);
+    if (!option) {
+      return res.status(404).json({ success: false, message: "Option not found" });
+    }
+
+    // Prevent duplicate voting
+    const alreadyVoted = option.voters.some(
+      (voter) => voter.email === email
+    );
+
+    if (alreadyVoted) {
+      return res.status(400).json({ success: false, message: "You have already voted for this option" });
+    }
+
+    option.votes += 1;
+    option.voters.push({
+      username,
+      email,
+      votedAt: new Date(),
+    });
+
+    await poll.save();
+
+    return res.status(200).json({ success: true, message: "Vote registered", updatedPoll: poll });
+
+  } catch (error) {
+    console.error("🔥 Server error while voting:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 

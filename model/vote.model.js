@@ -8,7 +8,8 @@ const VoteSchema = new mongoose.Schema({
     matchResult: { type: String, default: null }, // winning team name or ID 
     isRewarded: { type: Boolean, default: false },
     matchStartTime: { type: Date, required: true },
-    processAfterTime: { type: Date, required: true }
+    processAfterTime: { type: Date, required: true },
+    isProcessed: { type: Boolean, default: false },
 });
 
 const Vote = mongoose.model('Vote', VoteSchema);

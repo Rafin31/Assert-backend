@@ -1,6 +1,7 @@
 import { web3, contract, account } from "../web3.js";
 import User from "../model/user.model.js";
 import mongoose from "mongoose";
+import { createNotification } from "./notifications.controller.js";
 
 const DAILY_TOKEN_AMOUNT = Number(process.env.DAILY_TOKEN); // Make sure it's an integer
 
@@ -68,13 +69,23 @@ export const claimDailyReward = async (req, res) => {
     user.lastLoginReward = now;
     await user.save();
 
+    try {
+      const notification = {
+        title: "Daily Reward Received",
+        message: "Daily Reward Received successfully!"
+      }
+
+      await createNotification(user._id, notification);
+    } catch (error) {
+      console.log(error)
+    }
+
     return res.status(200).json({
       success: true,
       message: `You received ${DAILY_TOKEN_AMOUNT} AT tokens!`,
       newBalance: user.tokenBalance,
     });
   } catch (error) {
-    console.error("Reward Error:", error);
     return res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
