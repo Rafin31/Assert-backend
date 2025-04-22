@@ -38,6 +38,10 @@ export const submitForm = async (req, res) => {
 
 export const showPredictions = async (req, res) => {
   try {
+
+    // Run status update check
+    await updateExpiredPredictionsStatus();
+
     const { realm, status } = req.query;
 
     // Build dynamic filter based on query parameters
@@ -70,6 +74,22 @@ export const votePrediction = async (req, res) => {
       return res.status(404).json({ success: false, message: "Prediction not found" });
     }
 
+    // Check if voting is allowed based on status
+    if (prediction.status === "pending_result") {
+      return res.status(403).json({
+        success: false,
+        message: "Voting has ended for this prediction."
+      });
+    }
+
+    // Optional: Check if current time is past the closingDate
+    if (prediction.rule?.[0]?.closingDate && new Date() > new Date(prediction.rule[0].closingDate)) {
+      return res.status(403).json({
+        success: false,
+        message: "Voting time has expired."
+      });
+    }
+
     // Update the votes based on the voteType
     if (voteType === "yes") {
       prediction.outcome.yesVotes.push({ username, email, timestamp });
@@ -88,6 +108,7 @@ export const votePrediction = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 
 // Show logged in user prediction participation
 export const showParticipatedPredictions = async (req, res) => {
@@ -148,6 +169,25 @@ export const showAdminUpdateStatus = async (req, res) => {
     }
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Automatically update status of predictions whose closing date has passed
+export const updateExpiredPredictionsStatus = async () => {
+  const now = new Date();
+
+  try {
+    const expired = await Prediction.updateMany(
+      {
+        "rule.0.closingDate": { $lte: now },
+        status: "approved"
+      },
+      { $set: { status: "pending_result" } }
+    );
+
+    
+  } catch (error) {
+    console.error("Error updating expired predictions:", error);
   }
 };
 
