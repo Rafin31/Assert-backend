@@ -142,18 +142,19 @@ export const showAdminUpdateStatus = async (req, res) => {
 
   try {
     // Validation for 'approved' status
-    if (status === "approved") {
+    if (status === "approved" || status === "rejected") {
+      // Check for condition and closingDate in both cases
       if (!rule || !rule.condition?.trim() || !rule.closingDate) {
         return res.status(400).json({
           success: false,
-          message: "Condition and closingDate are required for approval."
+          message: "Condition and closingDate are required for approval or rejection."
         });
       }
     }
 
     const updateData = { status };
 
-    if (status === "approved") {
+    if (status === "approved" || status === "rejected") {
       updateData.rule = [{
         condition: rule.condition.trim(),
         closingDate: new Date(rule.closingDate)
@@ -171,6 +172,7 @@ export const showAdminUpdateStatus = async (req, res) => {
     return res.status(500).json({ success: false, message: err.message });
   }
 };
+
 
 // Automatically update status of predictions whose closing date has passed
 export const updateExpiredPredictionsStatus = async () => {

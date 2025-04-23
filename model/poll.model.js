@@ -20,7 +20,7 @@ const resultSchema = new Schema({
 
 const ruleSchema = new Schema({
   condition: { type: String, required: true },
-  closingDate: { type: String, default: "Prediction closing date to be decided by admin" },
+  closingDate: { type: Date, required: true }, 
 });
 
 const pollSchema = new Schema({

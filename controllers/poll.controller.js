@@ -141,7 +141,7 @@ export const showAdminUpdateStatusPoll = async (req, res) => {
 
   try {
     // Validation for 'approved' status
-    if (status === "approved") {
+    if (status === "approved" || status === "rejected") {
       if (!rule || !rule.condition?.trim() || !rule.closingDate) {
         return res.status(400).json({
           success: false,
@@ -152,7 +152,7 @@ export const showAdminUpdateStatusPoll = async (req, res) => {
 
     const updateData = { status };
 
-    if (status === "approved") {
+    if (status === "approved" || status === "rejected") {
       updateData.rule = [{
         condition: rule.condition.trim(),
         closingDate: new Date(rule.closingDate)
@@ -176,16 +176,31 @@ export const updateExpiredPollsStatus = async () => {
   const now = new Date();
 
   try {
-    const expired = await Poll.updateMany(
-      {
-        "rule.0.closingDate": { $lte: now },
-        status: "approved"
-      },
+
+
+    // Find all polls that are approved and have a closingDate in the past
+    const expiredPolls = await Poll.find({
+      status: "approved",
+      "rule.0.closingDate": { $lte: now },
+    });
+
+    if (expiredPolls.length === 0) {
+      return;
+    }
+
+
+    // Extract IDs of those polls
+    const expiredPollIds = expiredPolls.map(poll => poll._id);
+
+    // Perform the update
+    const result = await Poll.updateMany(
+      { _id: { $in: expiredPollIds } },
       { $set: { status: "pending_result" } }
     );
 
-   
+
   } catch (error) {
-    console.error("Error updating expired polls:", error);
+    console.error("❌ Error updating expired polls:", error);
   }
 };
+
