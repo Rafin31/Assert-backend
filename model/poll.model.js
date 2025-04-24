@@ -15,7 +15,7 @@ const optionSchema = new Schema({
 });
 
 const resultSchema = new Schema({
-  winnerEmail: { type: String, required: true },
+  winnerEmail: { type: [String], required: true },
 });
 
 const ruleSchema = new Schema({

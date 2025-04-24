@@ -1,6 +1,6 @@
 import express from "express";
 import Prediction from "../../model/prediction.model.js";  // Corrected model import
-import { showPredictions, submitForm, votePrediction, showParticipatedPredictions, showAdminApproval, showAdminUpdateStatus } from "../../controllers/prediction.controller.js";
+import { showPredictions, submitForm, votePrediction, showParticipatedPredictions, showAdminApproval, showAdminUpdateStatus, markPredictionOutcome } from "../../controllers/prediction.controller.js";
 
 const router = express.Router();
 
@@ -17,5 +17,7 @@ router.get("/participatedPredictions", showParticipatedPredictions); // to get u
 router.get("/adminApproval", showAdminApproval); // Admin approval for prediction
 
 router.put('/updateStatus/:id', showAdminUpdateStatus);
+
+router.put("/markOutcome/:id", markPredictionOutcome); // For Final result by Admin
 
 export default router;
