@@ -39,6 +39,9 @@ export const submitForm = async (req, res) => {
 
 export const showPoll = async (req, res) => {
   try {
+
+    // Update expired polls' status
+    await updateExpiredPollsStatus();
     const { realm, status } = req.query;
 
     // Build dynamic filter based on query parameters
@@ -62,6 +65,14 @@ export const voteOnPoll = async (req, res) => {
     const poll = await Poll.findById(pollId);
     if (!poll) {
       return res.status(404).json({ success: false, message: "Poll not found" });
+    }
+
+    // Check if poll is closed for voting
+    if (poll.status === "pending_result") {
+      return res.status(403).json({
+        success: false,
+        message: "Voting has ended for this poll."
+      });
     }
 
     const option = poll.outcome.id(optionId);
@@ -94,6 +105,7 @@ export const voteOnPoll = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 
 
 // Show logged in user poll participation
@@ -129,18 +141,18 @@ export const showAdminUpdateStatusPoll = async (req, res) => {
 
   try {
     // Validation for 'approved' status
-    if (status === "approved") {
+    if (status === "approved" || status === "rejected") {
       if (!rule || !rule.condition?.trim() || !rule.closingDate) {
         return res.status(400).json({
           success: false,
-          message: "Condition and closingDate are required for approval."
+          message: "Condition and closing Date are required for approval."
         });
       }
     }
 
     const updateData = { status };
 
-    if (status === "approved") {
+    if (status === "approved" || status === "rejected") {
       updateData.rule = [{
         condition: rule.condition.trim(),
         closingDate: new Date(rule.closingDate)
@@ -156,6 +168,39 @@ export const showAdminUpdateStatusPoll = async (req, res) => {
     }
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Automatically update status of polls whose closing date has passed
+export const updateExpiredPollsStatus = async () => {
+  const now = new Date();
+
+  try {
+
+
+    // Find all polls that are approved and have a closingDate in the past
+    const expiredPolls = await Poll.find({
+      status: "approved",
+      "rule.0.closingDate": { $lte: now },
+    });
+
+    if (expiredPolls.length === 0) {
+      return;
+    }
+
+
+    // Extract IDs of those polls
+    const expiredPollIds = expiredPolls.map(poll => poll._id);
+
+    // Perform the update
+    const result = await Poll.updateMany(
+      { _id: { $in: expiredPollIds } },
+      { $set: { status: "pending_result" } }
+    );
+
+
+  } catch (error) {
+    console.error("❌ Error updating expired polls:", error);
   }
 };
 
