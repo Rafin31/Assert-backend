@@ -210,8 +210,6 @@ export const markPollOutcome = async (req, res) => {
   const { id } = req.params; // Poll ID from the URL
   const { winningOptionId } = req.body; // The ID of the winning option
 
-  console.log("Poll ID received:", id);
-  console.log("Winner Poll ID received:", winningOptionId);
 
   try {
     // Find the poll by ID
