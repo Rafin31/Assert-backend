@@ -198,11 +198,11 @@ export const getPredictionCount = async (req, res) => {
     const losses = await Vote.countDocuments({
       userId,
       isRewarded: false,
-      matchResult: { $ne: null }
+      isProcessed: true
     });
 
      // Count losses where matchResult:null
-    const pending = await Vote.countDocuments({ userId, matchResult: null });
+    const pending = await Vote.countDocuments({ userId, isProcessed: false });
 
     res.status(200).json({
       success: true,
