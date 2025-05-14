@@ -180,4 +180,46 @@ const handleFixtureProcessing = async (fixture, fixtureId, res, cache) => {
 };
 
 
+export const getPredictionCount = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    // Count total predictions (votes)
+    const total = await Vote.countDocuments({ userId });
+
+    // Count wins where isRewarded: true
+    const wins = await Vote.countDocuments({ userId, isRewarded: true });
+
+    // Losses (not rewarded, match has result)
+    const losses = await Vote.countDocuments({
+      userId,
+      isRewarded: false,
+      matchResult: { $ne: null }
+    });
+
+     // Count losses where matchResult:null
+    const pending = await Vote.countDocuments({ userId, matchResult: null });
+
+    res.status(200).json({
+      success: true,
+      predictionCount: total,
+      predictionWinCount: wins,
+      predictionLoseCount: losses,
+      predictionPendingCount: pending,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching prediction count",
+      error: error.message,
+    });
+  }
+};
+
+
+
 

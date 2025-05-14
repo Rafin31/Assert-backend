@@ -193,3 +193,39 @@ export const updateExpiredPredictionsStatus = async () => {
   }
 };
 
+
+// Mark outcome and reward winners
+export const markPredictionOutcome = async (req, res) => {
+  try {
+    const { predictionId, winningOutcome } = req.body;
+
+    if (!["Yes", "No", "No Result"].includes(winningOutcome)) {
+      return res.status(400).json({ success: false, message: "Invalid outcome" });
+    }
+
+    const prediction = await Prediction.findById(predictionId);
+    if (!prediction) {
+      return res.status(404).json({ success: false, message: "Prediction not found" });
+    }
+
+    // If 'No Result', update and return
+    if (winningOutcome === "No Result") {
+      prediction.status = "resolved";
+      
+      await prediction.save();
+      return res.json({ success: true, message: "Marked as No Result" });
+    }
+
+    const winningVotes = winningOutcome === "Yes" ? prediction.outcome.yesVotes : prediction.outcome.noVotes;
+    const winnerEmails = winningVotes.map(v => v.email);
+
+    prediction.results = winnerEmails.map(email => ({ winnerEmail: email }));
+    prediction.status = "resolved";
+    await prediction.save();
+
+    res.json({ success: true, message: "Outcome recorded and winners marked" });
+  } catch (error) {
+    console.error("Error marking outcome:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};

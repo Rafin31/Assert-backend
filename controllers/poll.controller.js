@@ -204,3 +204,73 @@ export const updateExpiredPollsStatus = async () => {
   }
 };
 
+
+// Admin marks the winning outcome for a poll
+export const markPollOutcome = async (req, res) => {
+  const { id } = req.params; // Poll ID from the URL
+  const { winningOptionId } = req.body; // The ID of the winning option
+
+
+  try {
+    // Find the poll by ID
+    const poll = await Poll.findById(id);
+    if (!poll) {
+      return res.status(404).json({ success: false, message: "Poll not found" });
+    }
+
+    // Check if the poll status is pending_result (meaning voting has ended)
+    if (poll.status !== "pending_result") {
+      return res.status(403).json({
+        success: false,
+        message: "Poll is not ready for result selection.",
+      });
+    }
+
+    // Handle "No Result" case: If winningOptionId is "No Result"
+    if (winningOptionId === "No Result") {
+      const updatedPoll = await Poll.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            "results": [{
+              winnerEmail: ["No Result"] // Store "No Result" explicitly
+            }],
+            "status": "resolved" // Change the poll status to 'resolved' (or any other appropriate status)
+          }
+        },
+        { new: true }
+      );
+      return res.status(200).json({ success: true, data: updatedPoll });
+    }
+
+    // Find the winning option based on option ID
+    const winningOption = poll.outcome.id(winningOptionId);
+    if (!winningOption) {
+      return res.status(404).json({ success: false, message: "Option not found" });
+    }
+
+    // Get all voters who voted for the winning option
+    const winnerEmails = winningOption.voters.map(voter => voter.email);
+
+    // Update the result schema with the winner emails
+    const updatedPoll = await Poll.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          "results": [{
+            winnerEmail: winnerEmails // Make sure winnerEmail is an array of strings
+          }],
+          "status": "resolved" // Change the poll status to 'resolved' (or any other appropriate status)
+        }
+      },
+      { new: true }
+    );
+
+    // Respond with the updated poll
+    return res.status(200).json({ success: true, data: updatedPoll });
+
+  } catch (error) {
+    console.error("Error marking poll outcome:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
