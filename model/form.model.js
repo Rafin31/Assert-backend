@@ -3,10 +3,10 @@ import mongoose from 'mongoose';
 const ReplySchema = new mongoose.Schema({
     reply: { type: String, required: true },
     username: { type: String, required: true },
-    email: { type: String, required: true }, // ✅ Added email field
+    email: { type: String, required: true },
     timestamp: {
         type: Date,
-        default: () => new Date() // Set current time for replies
+        default: () => new Date()
     },
 });
 
@@ -15,7 +15,7 @@ const LikeSchema = new mongoose.Schema({
     email: { type: String, required: true },
     timestamp: {
         type: Date,
-        default: () => new Date() // Time when the like was made
+        default: () => new Date()
     },
 });
 
@@ -31,7 +31,7 @@ const FormSchema = new mongoose.Schema({
         type: Date,
         default: () => new Date()
     },
-    status: { type: String, default: "pending" },
+    status: { type: String, default: "approve" },
     likeCount: { type: Number, default: 0 },
     likedBy: { type: [LikeSchema], default: [] }
 });
