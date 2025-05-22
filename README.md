@@ -1,137 +1,139 @@
 # ASSERT Backend
 
-## 📌 Project Overview
-This is the backend for the **ASSERT Prediction Platform**, a blockchain-based system where users can participate in predictions using AT tokens. The backend handles user authentication, token transactions, daily rewards, and interactions with the smart contract deployed on **Ganache**.
-
-## 🚀 Features
-- **User Authentication** (Signup & Login with email and password)
-- **Wallet Integration** (Users can add their wallet address later)
-- **AT Token Transactions**
-  - Claim **daily rewards** (Configurable via `.env` file)
-  - **Deduct tokens** for participation in predictions (Configurable via `.env` file)
-  - **Check user token balance** (Syncs with blockchain)
-- **Smart Contract Interaction**
-  - Transfers tokens using Web3.js
-  - Ensures on-chain balance sync with MongoDB
-
-## 🛠️ Technology Stack
-- **Node.js** & **Express.js** (Backend Framework)
-- **MongoDB** & **Mongoose** (Database)
-- **Web3.js** (Blockchain Integration)
-- **Ganache** (Ethereum Local Blockchain for Testing)
-- **dotenv** (Environment Variable Management)
-- **bcrypt.js & jsonwebtoken** (User Authentication)
+This is the backend server for **ASSERT**, a blockchain-enabled prediction platform where users participate in debates, polls, and predictions using token-based logic. The backend is built with Node.js and Express, connected to MongoDB and integrated with a smart contract using Web3.
 
 ---
 
-## 📥 Installation Guide
+## Project Structure
 
-### **1️⃣ Clone the Repository**
-```bash
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
+```
+├── assets/                   # Sample ABI, contract metadata, docs
+├── config/                   # MongoDB and app configuration
+│   └── db.js
+├── controllers/              # Main controller logic (auth, form, etc.)
+├── middlewires/              # Custom middleware (auth checks, error handling)
+├── model/                    # Mongoose models (User, Thread, Notification)
+├── routes/
+│   └── v1/                   # Versioned API route definitions
+├── app.js                    # Express app setup
+├── index.js                  # Entry point
+├── web3.js                   # Web3 + contract instance configuration
+├── .env                      # Environment variables
+├── .gitignore
+├── LICENSE
+├── README.md
+├── package.json
+├── package-lock.json
+├── yarn.lock
 ```
 
-### **2️⃣ Install Dependencies**
+---
+
+## Features
+
+- RESTful API using Express.js
+- MongoDB integration via Mongoose
+- JWT-based authentication
+- Smart contract integration (ATToken) with Web3.js
+- Vote cost and reward logic using tokens
+- Daily login rewards
+- Match result validation using Sportmonks API
+- Caching and cron logic for efficient API usage
+- Notification system (stored in DB)
+
+---
+
+## Setup Instructions
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/YOUR_USERNAME/assert-backend.git
+cd assert-backend
+```
+
+### 2. Install dependencies
 ```bash
 npm install
 ```
 
-### **3️⃣ Setup `.env` File**
-Create a `.env` file in the root directory and configure the following variables:
-```env
+### 3. Environment Variables
+Create a `.env` file in the root directory:
+
+```
 PORT=5000
-MONGO_DB_CONNECTION_URI=your_mongo_db_uri
-PRIVATE_KEY=your_ganache_private_key
-RPC_URL=http://127.0.0.1:7545  # Ganache RPC URL
-DAILY_TOKEN=20  # Amount of AT tokens users receive as a daily reward
-TOKEN_DEDUCTION=5  # Amount of AT tokens deducted when participating in predictions
-JWT_SECRET=your_generated_secret_here  # JWT Secret for authentication
-```
-> ⚠️ **Note:** Use the **private key from the first account in Ganache**.
-
-### **4️⃣ Generate a Secure JWT Secret Key**
-You can generate a strong JWT secret key using any of the following methods:
-
-#### **Using Node.js Console**
-```bash
-node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
-```
-#### **Using OpenSSL (Linux & macOS)**
-```bash
-openssl rand -hex 64
-```
-#### **Using Python**
-```bash
-python -c "import secrets; print(secrets.token_hex(64))"
-```
-Copy the generated key and paste it into your `.env` file under `JWT_SECRET`.
-
-### **5️⃣ Start the Backend Server**
-```bash
-npm run start-dev  # For development with nodemon
-npm run start      # For production
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_secret_key
+SPORTMONKS_API_KEY=your_sportmonks_api_key
+OWNER_WALLET_ADDRESS=0xYourOwnerWallet
+OWNER_PRIVATE_KEY=your_private_key
+CONTRACT_ADDRESS=your_contract_address
 ```
 
----
+> ⚠️ Keep your private keys secure and avoid committing them to version control.
 
-## 🔗 **How to Use This Backend with Your Own Smart Contract & Wallet**
-### **🛠 Steps to Deploy Your Own Smart Contract**
-1. **Modify and Deploy Your Own Smart Contract in Remix**
-   - Go to [Remix Ethereum IDE](https://remix.ethereum.org/)
-   - Write your **Solidity** contract (or modify the existing AT token contract)
-   - Deploy it on **Ganache**
-   - Copy the **Contract Address** after deployment
-
-2. **Update `web3.js` in the Backend**
-   - Open `web3.js` in your project
-   - Replace the **contract address** with your own
-   - Update the **ABI** if you modified the smart contract
-
-```javascript
-const contractAddress = "0xYourContractAddressHere";  // Replace this
-const contractABI = [...];  // Replace with your contract's ABI
-```
-
-3. **Restart the Backend**
+### 4. Run the development server
 ```bash
 npm run start-dev
 ```
 
-4. **Test api/v1 Endpoints with Your Own Wallet**
-   - Use **Postman** or **cURL** to test token transactions.
+> Server runs on `http://localhost:5000` by default.
 
 ---
 
-## 📡 api/v1 Endpoints
+## API Overview
 
-### **🔹 Authentication Routes**
-| METHOD | ENDPOINT | DESCRIPTION |
-|--------|------------|--------------|
-| `POST` | `/api/v1/auth/signup` | Register a new user |
-| `POST` | `/api/v1/auth/login` | Login and receive a JWT token |
+| Method | Route                     | Description                          |
+|--------|---------------------------|--------------------------------------|
+| POST   | /api/v1/auth/signup       | Register a new user                  |
+| POST   | /api/v1/auth/login        | Log in an existing user              |
+| POST   | /api/v1/form/thread       | Create a new thread (poll/debate)    |
+| POST   | /api/v1/form/vote         | Vote on a thread using tokens        |
+| GET    | /api/v1/form/category/:c  | Get approved threads by category     |
+| POST   | /api/v1/reward/claim      | Claim daily login reward             |
+| POST   | /api/v1/validate/matches  | Validate match results via API       |
+| GET    | /api/v1/notifications     | Fetch user notifications             |
 
-### **🔹 User Routes**
-| METHOD | ENDPOINT | DESCRIPTION |
-|--------|------------|--------------|
-| `POST` | `/api/v1/users` | Register a new user |
-| `PUT` | `/api/v1/users/add-wallet` | Add a wallet address to an existing user |
-| `GET` | `/api/v1/users/:id` | Get a single user by ID |
-| `GET` | `/api/v1/users` | Get all users |
-
-### **🔹 Token & Smart Contract Routes**
-| METHOD | ENDPOINT | DESCRIPTION |
-|--------|------------|--------------|
-| `PUT` | `/api/v1/users/token/claimDailyReward` | Claim daily AT tokens (Configurable in `.env`) |
-| `PUT` | `/api/v1/users/token/deductTokens` | Deduct AT tokens from a user (Configurable in `.env`) |
+> Routes are defined under `/routes/v1` and handled in `/controllers`.
 
 ---
 
-## 📜 License
-This project is **MIT Licensed**.
+## Technologies Used
 
-## 👥 Contributors
-- **Asif Hossain** (@rafin31)
+- Node.js + Express.js
+- MongoDB + Mongoose
+- Web3.js
+- Solidity smart contract (ATToken)
+- JSON Web Tokens (JWT)
+- Sportmonks API
+- Cron Jobs
+- Caching with in-memory logic
 
-Feel free to **fork, contribute, or suggest improvements**! 🚀
+---
 
+## Smart Contract Integration
+
+- The smart contract (`ATToken.sol`) is compiled and deployed manually (e.g., Remix, Ganache).
+- Web3 is used only by the backend to perform `mint`, `transfer`, and `balanceOf` actions using the owner's wallet.
+- Users do not need real wallets — their balances are tracked in MongoDB for simulation.
+
+---
+
+## Contribution
+
+1. Fork the repo
+2. Create a branch: `git checkout -b feature/my-feature`
+3. Commit your changes: `git commit -m "Add new feature"`
+4. Push the branch: `git push origin feature/my-feature`
+5. Open a pull request
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+## Credits
+
+Developed as part of the **ASSERT Capstone Project** at the University of Wollongong by Team ASSERT.
