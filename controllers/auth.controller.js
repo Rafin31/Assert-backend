@@ -47,7 +47,7 @@ export const verify = async (req, res) => {
     if (!user) return res.status(400).json({ error: "User not found" });
 
     const message = `Sign this message to log in: ${user.nonce}`;
-    const recoveredAddress = ethers.utils.verifyMessage(message, signature);
+    const recoveredAddress = ethers.verifyMessage(message, signature);
 
     if (recoveredAddress.toLowerCase() !== walletAddress.toLowerCase()) {
       return res.status(401).json({ error: "Invalid signature" });

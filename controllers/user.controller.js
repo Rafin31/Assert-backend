@@ -3,7 +3,7 @@ import User from "../model/user.model.js";
 import mongoose from "mongoose";
 import { createNotification } from "./notifications.controller.js";
 
-const DAILY_TOKEN_AMOUNT = Number(process.env.DAILY_TOKEN); // Make sure it's an integer
+const DAILY_TOKEN_AMOUNT = Number(process.env.DAILY_TOKEN) || 20;
 
 
 export const getAllUsers = async (req, res) => {
@@ -111,7 +111,7 @@ export const createUser = async (req, res) => {
     if (!password || password.length < 8) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 6 characters",
+        message: "Password must be at least 8 characters",
       });
     }
 

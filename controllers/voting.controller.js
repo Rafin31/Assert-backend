@@ -16,7 +16,7 @@ export const castVote = async (req, res) => {
 
     // 1. Check user and deduct tokens
     const user = await User.findById(userId);
-    if (!user || user.tokenBalance < 5) {
+    if (!user || user.tokenBalance < TOKEN_DEDUCTION_FOR_VOTE) {
       return res.status(400).json({ message: 'Insufficient tokens or invalid user' });
     }
 
@@ -145,20 +145,22 @@ const handleFixtureProcessing = async (fixture, fixtureId, res, cache) => {
 
     const user = await User.findById(vote.userId);
 
+    if (!user) {
+      await vote.save();
+      continue;
+    }
+
     if (winningTeamName && votedTeam === winningTeam) {
+      user.tokenBalance = Number(user.tokenBalance) + TOKEN_REWARD;
+      await user.save();
+      rewardedCount++;
 
-      if (user) {
-        user.tokenBalance = Number(user.tokenBalance) + TOKEN_REWARD;
-        await user.save();
-        rewardedCount++;
+      vote.isRewarded = true;
 
-        vote.isRewarded = true;
-
-        notification = {
-          title: `You won for ${fixture.name}!`,
-          message: `You received ${TOKEN_REWARD} AT tokens as a reward.`,
-        };
-      }
+      notification = {
+        title: `You won for ${fixture.name}!`,
+        message: `You received ${TOKEN_REWARD} AT tokens as a reward.`,
+      };
     } else {
       notification = {
         title: `Result Published for ${fixture.name}`,

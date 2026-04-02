@@ -2,7 +2,7 @@ import Notification from "../model/notifications.modal.js";
 
 
 export const createNotification = async (userId, { title, message }) => {
-    Notification.create({ user: userId, title, message });
+    await Notification.create({ user: userId, title, message });
 }
 
 
@@ -31,7 +31,7 @@ export const create = async (req, res) => {
             data: notif,
         });
     } catch (err) {
-        res.status(500).json({ success: false, error: error.message });
+        res.status(500).json({ success: false, error: err.message });
     }
 };
 
@@ -63,6 +63,6 @@ export const markAllRead = async (req, res) => {
             message: "All notifications marked as read",
         });
     } catch (err) {
-        res.status(500).json({ success: false, error: error.message });
+        res.status(500).json({ success: false, error: err.message });
     }
 };
